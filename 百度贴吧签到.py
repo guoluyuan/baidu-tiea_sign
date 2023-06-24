@@ -71,24 +71,26 @@ def getTbs2():
     return requests.get("https://tieba.baidu.com/dc/common/imgtbs").json()['data']["tbs"]
 
 #过签到验证码
-def SingUpCode(tb,captcha_vcode_str):
+def SingUpCode(tb, captcha_vcode_str):
     print("正在尝试绕过验证码")
-    #需要验证的时候
-    myDate_yan ={
-        "ie": "utf-8",
-        "kw": tb,
-        "captcha_input_str": getCode(captcha_vcode_str),
-        "captcha_vcode_str":captcha_vcode_str
-    }
+    # 需要验证的时候
     try:
-        resp = requests.post(url, data=myDate_yan, headers=myHeader, cookies=myCookies)
+        myDate_yan = {
+            "ie": "utf-8",
+            "kw": tb,
+            "captcha_input_str": getCode(captcha_vcode_str),
+            "captcha_vcode_str": captcha_vcode_str
+        }
+        resp = requests.post(url, data=myDate_yan,
+                             headers=myHeader, cookies=myCookies)
     except requests.exceptions.RequestException as e:
-        print("网络请求失败:", e)
+        print("网络请求失败:, 请尝试更换ck后再经行签到", e)
+        send("ck失效，请重新获取")
         return
-    if re.findall('"error":"(.*?)"', str(resp.text))[0]=="need vcode":
+    if re.findall('"error":"(.*?)"', str(resp.text))[0] == "need vcode":
         print("验证码错误")
         print("重新获取验证码")
-        SingUpCode(tb,resp.json()['data']['captcha_vcode_str'])
+        SingUpCode(tb, resp.json()['data']['captcha_vcode_str'])
     return re.findall('"error":"(.*?)"', str(resp.text))[0]
 
 
